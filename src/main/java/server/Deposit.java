@@ -6,19 +6,19 @@ import java.math.BigDecimal;
  * Created by $Hamid on 3/1/2017.
  */
 public class Deposit {
-    private String id;
+    private Integer id;
     private String customerName;
     private BigDecimal Balance;
     private BigDecimal upperBound;
 
-    public Deposit(String id, String customerName, BigDecimal balance, BigDecimal upperBound) {
+    public Deposit(Integer id, String customerName, BigDecimal balance, BigDecimal upperBound) {
         this.id = id;
         this.customerName = customerName;
         Balance = balance;
         this.upperBound = upperBound;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
