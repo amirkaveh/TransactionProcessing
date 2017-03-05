@@ -6,15 +6,15 @@ import java.math.BigDecimal;
 /**
  * Created by $Hamid on 3/4/2017.
  */
-public class Transaction implements Serializable{
+public class TransactionRequest implements Serializable {
     private Integer id;
     private TransactionType type;
     private BigDecimal amount;
     private Integer depositID;
 
-    public enum TransactionType {deposit,withdraw};
+    public enum TransactionType {deposit, withdraw}
 
-    public Transaction(Integer id, TransactionType type, BigDecimal amount, Integer depositID) {
+    public TransactionRequest(Integer id, TransactionType type, BigDecimal amount, Integer depositID) {
         this.id = id;
         this.type = type;
         this.amount = amount;

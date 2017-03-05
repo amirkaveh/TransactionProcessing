@@ -5,32 +5,37 @@ import java.math.BigDecimal;
 /**
  * Created by $Hamid on 3/1/2017.
  */
-public class Deposit {
+class Deposit {
     private Integer id;
     private String customerName;
     private BigDecimal Balance;
     private BigDecimal upperBound;
+    final Object lock = new Object();
 
-    public Deposit(Integer id, String customerName, BigDecimal balance, BigDecimal upperBound) {
+    Deposit(Integer id, String customerName, BigDecimal balance, BigDecimal upperBound) {
         this.id = id;
         this.customerName = customerName;
         Balance = balance;
         this.upperBound = upperBound;
     }
 
-    public Integer getId() {
+    Integer getId() {
         return id;
     }
 
-    public String getCustomerName() {
+    String getCustomerName() {
         return customerName;
     }
 
-    public BigDecimal getBalance() {
+    BigDecimal getBalance() {
         return Balance;
     }
 
-    public BigDecimal getUpperBound() {
+    BigDecimal getUpperBound() {
         return upperBound;
+    }
+
+    void setBalance(BigDecimal balance) {
+        Balance = balance;
     }
 }
