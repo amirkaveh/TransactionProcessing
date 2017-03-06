@@ -1,23 +1,33 @@
 package server;
 
-import client.TransactionRequest;
-import client.TransactionResponse;
+import terminal.TransactionRequest;
+import terminal.TransactionResponse;
 import exceptions.*;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by $Hamid on 3/5/2017.
  */
 class RequestHandler extends Thread {
     private static List<Deposit> deposits;
+    private static final Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
     private Socket socket;
 
-    static void SetDepositList(List<Deposit> deposits) {
+    static void setDepositList(List<Deposit> deposits) {
         RequestHandler.deposits = deposits;
+    }
+
+    static void setLoggerFileHandler(FileHandler fileHandler) {
+        RequestHandler.LOGGER.addHandler(fileHandler);
     }
 
     RequestHandler(Socket socket) {
@@ -27,22 +37,41 @@ class RequestHandler extends Thread {
 
     @Override
     public void run() {
-        TransactionRequest transactionRequest = null;
-        try {
-            transactionRequest = receiveRequest();
-            Integer depositIndex = searchDeposits(transactionRequest.getDepositID());
-            processRequest(depositIndex, transactionRequest);
-            //System.out.println(deposits.get(depositIndex).getId() + ", " + deposits.get(depositIndex).getBalance());
-            sendResponse(transactionRequest.getId(), null, "Transaction successfully done!");
+        LOGGER.log(Level.INFO, "{0}: receiving requests.", this.getName());
+        while (true) {
+            TransactionRequest transactionRequest = null;
+            try {
+                transactionRequest = receiveRequest();
+                Integer depositIndex = searchDeposits(transactionRequest.getDepositID());
+                processRequest(depositIndex, transactionRequest);
+                LOGGER.log(Level.INFO,"{0}: transaction request id#{1} was valid and done.",new Object[]{this.getName(),transactionRequest.getId()});
+                sendResponse(transactionRequest.getId(), null, "Transaction successfully done!");
 
-        } catch (ClassNotFoundException e) {
-            //throw new RuntimeException(e);
-            sendResponse(transactionRequest.getId(), e, "Sent class is not permitted!");
-        } catch (DepositNotFoundException | TransactionTypeNotSupportedException | DepositBalanceNotSufficientException | TransactionAmountException | UpperBoundException e) {
-            //e.printStackTrace();
-            sendResponse(transactionRequest.getId(), e, "Transaction was not successful!");
+            } catch (ClassNotFoundException e) {
+                LOGGER.log(Level.WARNING,"{0}: input data was not valid.",this.getName());
+                sendResponse(-1, e, "Sent class is not permitted!");
+            } catch (DepositNotFoundException | TransactionTypeNotSupportedException | DepositBalanceNotSufficientException | TransactionAmountException | UpperBoundException e) {
+                LOGGER.log(Level.WARNING,String.format("%s: transaction request id#%d was not valid.",this.getName(),transactionRequest.getId()),e);
+                sendResponse(transactionRequest.getId(), e, "Transaction was not successful!");
+            } catch (Exception e) {
+//                System.out.println(e.getCause());
+//                if(e.getCause() instanceof EOFException)
+//                    break;
+                LOGGER.log(Level.WARNING,String.format("%s: closing socket due to an exception or closed terminal.",this.getName()),e);
+                closeSocket();
+                break;
+            }
         }
+        LOGGER.log(Level.INFO,"{0}: closing thread.",this.getName());
+    }
 
+    private void closeSocket() {
+        try {
+            socket.close();
+            LOGGER.log(Level.INFO,"{0}: socket closed.",this.getName());
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING,String.format("%s: error while closing socket.",this.getName()),e);
+        }
     }
 
     private void sendResponse(Integer id, Exception exception, String message) {
@@ -51,7 +80,9 @@ class RequestHandler extends Thread {
             TransactionResponse transactionResponse = new TransactionResponse(id, exception, message);
             objectOutputStream.writeObject(transactionResponse);
             objectOutputStream.flush();
+            LOGGER.log(Level.INFO,"{0}: response of transaction request {1} sent to terminal.",new Object[]{this.getName(),id});
         } catch (IOException e) {
+            LOGGER.log(Level.WARNING,String.format("%s: sending response of request %d failed.",this.getName(),id),e);
             throw new RuntimeException(e);
         }
 
@@ -60,8 +91,11 @@ class RequestHandler extends Thread {
     private TransactionRequest receiveRequest() throws ClassNotFoundException {
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
-            return (TransactionRequest) objectInputStream.readObject();
+            TransactionRequest transactionRequest = (TransactionRequest) objectInputStream.readObject();
+            LOGGER.log(Level.INFO,"{0}: request id#{1} received.",new Object[]{ this.getName(), transactionRequest.getId()});
+            return transactionRequest;
         } catch (IOException e) {
+            LOGGER.log(Level.WARNING,String.format("%s: request receiving failed.",this.getName()),e);
             throw new RuntimeException(e);
         }
     }
@@ -92,5 +126,6 @@ class RequestHandler extends Thread {
 
         }
     }
+
 
 }
