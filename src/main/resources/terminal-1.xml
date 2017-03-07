@@ -1,0 +1,20 @@
+<terminal id="21371" type="POS">
+    <server ip="127.0.0.1" port="8087"/>
+    <outLog path="term21371.log"/>
+    <transactions>
+        <transaction id="1" type="deposit" amount="3000000" deposit="2000"/>
+        <transaction id="2" type="withdraw" amount="500" deposit="3000"/>
+		<transaction id="3" type="withdraw" amount="0" deposit="1000"/>
+		<transaction id="4" type="deposit" amount="600" deposit="1000"/>
+		<transaction id="5" type="withdraw" amount="700" deposit="1000"/>
+		<transaction id="6" type="deposit" amount="1000" deposit="1000"/>
+		<transaction id="7" type="deposit" amount="100" deposit="1000"/>
+		<transaction id="8" type="withdraw" amount="5000000000" deposit="1000"/>
+		<transaction id="9" type="withdraw" amount="2000" deposit="1000"/>
+		<transaction id="10" type="withdraw" amount="900" deposit="2000"/>
+		<transaction id="11" type="deposit" amount="200" deposit="2000"/>
+		<transaction id="12" type="withdraw" amount="4000" deposit="3000"/>
+		<transaction id="13" type="withdraw" amount="12200" deposit="2000"/>
+		<transaction id="14" type="withdraw" amount="50000" deposit="2000"/>
+    </transactions>
+</terminal>

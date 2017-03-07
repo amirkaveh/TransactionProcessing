@@ -11,18 +11,14 @@ public class TransactionRequest implements Serializable {
     private TransactionType type;
     private BigDecimal amount;
     private Integer depositID;
-    private Integer terminalID;
-    private String terminalType;
 
     public enum TransactionType {deposit, withdraw}
 
-    public TransactionRequest(Integer terminalID, String terminalType, Integer id, TransactionType type, BigDecimal amount, Integer depositID) {
+    public TransactionRequest(Integer id, TransactionType type, BigDecimal amount, Integer depositID) {
         this.id = id;
         this.type = type;
         this.amount = amount;
         this.depositID = depositID;
-        this.terminalID = terminalID;
-        this.terminalType = terminalType;
     }
 
     public Integer getId() {
@@ -41,11 +37,5 @@ public class TransactionRequest implements Serializable {
         return depositID;
     }
 
-    public Integer getTerminalID() {
-        return terminalID;
-    }
 
-    public String getTerminalType() {
-        return terminalType;
-    }
 }

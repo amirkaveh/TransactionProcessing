@@ -1,8 +1,0 @@
-<terminal id="21374" type="ATM">
-    <server ip="127.0.0.1" port="8087"/>
-    <outLog path="term21374.log"/>
-    <transactions>
-        <transactionRequest id="1" type="deposit" amount="3000" deposit="1000"/>
-        <transactionRequest id="2" type="withdraw" amount="10000" deposit="2000"/>
-    </transactions>
-</terminal>

@@ -37,7 +37,7 @@ public class Server extends Thread {
 
         Logger rootLogger = Logger.getLogger("");
         Handler[] handlers = rootLogger.getHandlers();
-        if(handlers.length>0 && handlers[0] instanceof ConsoleHandler)
+        if (handlers.length > 0 && handlers[0] instanceof ConsoleHandler)
             rootLogger.removeHandler(handlers[0]);
         LOGGER.setLevel(Level.INFO);
         FileHandler fileHandler = new FileHandler(outLog);
@@ -45,7 +45,7 @@ public class Server extends Thread {
         fileHandler.setFormatter(simpleFormatter);
         LOGGER.addHandler(fileHandler);
 
-        LOGGER.log(Level.INFO,"Logger configured.");
+        LOGGER.log(Level.INFO, "Logger configured.");
         return fileHandler;
     }
 
@@ -75,30 +75,38 @@ public class Server extends Thread {
 
     @Override
     public void run() {
+        ServerSocket serverSocket = serverStart();
 
+        LOGGER.log(Level.INFO, "Start listening for new terminals");
+        serverAccept(serverSocket);
+    }
+
+    private ServerSocket serverStart() {
         ServerSocket serverSocket;
-        Socket socket;
         try {
             serverSocket = new ServerSocket(portNumber, 1000, null);
-            LOGGER.log(Level.INFO,"Server started.");
+            LOGGER.log(Level.INFO, "Server started.");
+            return serverSocket;
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"Server starting failed.",e);
+            LOGGER.log(Level.SEVERE, "Server starting failed.", e);
             throw new RuntimeException("Starting server error!", e);
         }
-        LOGGER.log(Level.INFO,"Start listening for new terminals");
+    }
+
+    private void serverAccept(ServerSocket serverSocket) {
         while (true) {
+            Socket socket;
             try {
                 socket = serverSocket.accept();
-                LOGGER.log(Level.INFO,"New terminal connected form {0}:{1}",new Object[]{socket.getInetAddress(),socket.getPort()+""});
+                LOGGER.log(Level.INFO, "New terminal connected form {0}:{1}", new Object[]{socket.getInetAddress(), socket.getPort() + ""});
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,"Server accepting new connections error.",e);
+                LOGGER.log(Level.SEVERE, "Server accepting new connections error.", e);
                 throw new RuntimeException("Server accepting connection error!", e);
             }
 
             RequestHandler requestHandler = new RequestHandler(socket);
             requestHandler.start();
-            LOGGER.log(Level.INFO,"{0} created to handle terminal connected from {1}:{2}",new Object[]{requestHandler.getName(), socket.getInetAddress(),socket.getPort()+""});
-
+            LOGGER.log(Level.INFO, "{0} created to handle terminal connected from {1}:{2}", new Object[]{requestHandler.getName(), socket.getInetAddress(), socket.getPort() + ""});
         }
     }
 
